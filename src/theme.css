@@ -1,0 +1,64 @@
+/*
+  OM Food and Spices LLP — colour & type tokens.
+  Every colour used in the site comes from here. Change a value once and the
+  whole site updates. Run `npm run check:contrast` after editing.
+*/
+:root {
+  /* Core brand */
+  --brand-forest: oklch(31% 0.05 155);       /* header, footer, dark sections */
+  --brand-forest-deep: oklch(25% 0.045 155); /* top bar, deepest panels */
+  --brand-paper: #fbf4e6;                    /* warm cream page background */
+  --brand-beige: #f0e6d2;                    /* alternating soft beige */
+  --brand-copper: oklch(55% 0.1 43);         /* CTA fill (AA with white label) */
+  --brand-copper-hover: oklch(48% 0.1 43);
+
+  /* Text */
+  --brand-ink: oklch(22% 0.035 155);         /* near-black green headings */
+  --brand-body: oklch(40% 0.02 70);          /* muted warm grey body text */
+  --brand-copper-ink: oklch(49% 0.1 43);     /* copper for text on cream/beige */
+  --brand-copper-light: oklch(78% 0.1 55);   /* copper highlight on forest */
+
+  /* Text on dark / on copper */
+  --brand-on-forest: #fbf4e6;
+  --brand-on-forest-muted: oklch(86% 0.02 90);
+  --brand-on-copper: #fffaf0;
+
+  /* Surfaces & lines */
+  --brand-card: #fffaf0;                     /* card surface (warm, not pure white) */
+  --brand-line: oklch(85% 0.03 80);
+  --brand-line-on-forest: oklch(45% 0.04 155);
+  --brand-whatsapp: oklch(52% 0.13 150);
+  --brand-error: oklch(48% 0.16 30);
+  --brand-success: oklch(40% 0.09 155);
+  --brand-overlay: oklch(25% 0.045 155 / 0.72);
+  --brand-shadow: oklch(25% 0.045 155 / 0.12);
+}
+
+@theme inline {
+  --color-forest: var(--brand-forest);
+  --color-forest-deep: var(--brand-forest-deep);
+  --color-paper: var(--brand-paper);
+  --color-beige: var(--brand-beige);
+  --color-copper: var(--brand-copper);
+  --color-copper-hover: var(--brand-copper-hover);
+  --color-ink: var(--brand-ink);
+  --color-body: var(--brand-body);
+  --color-copper-ink: var(--brand-copper-ink);
+  --color-copper-light: var(--brand-copper-light);
+  --color-on-forest: var(--brand-on-forest);
+  --color-on-forest-muted: var(--brand-on-forest-muted);
+  --color-on-copper: var(--brand-on-copper);
+  --color-card: var(--brand-card);
+  --color-line: var(--brand-line);
+  --color-line-forest: var(--brand-line-on-forest);
+  --color-whatsapp: var(--brand-whatsapp);
+  --color-error: var(--brand-error);
+  --color-success: var(--brand-success);
+  --color-overlay: var(--brand-overlay);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+
+  --shadow-card: 0 1px 2px var(--brand-shadow), 0 8px 24px -12px var(--brand-shadow);
+  --shadow-lift: 0 2px 4px var(--brand-shadow), 0 18px 36px -16px var(--brand-shadow);
+}
