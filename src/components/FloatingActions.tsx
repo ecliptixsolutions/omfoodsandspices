@@ -9,7 +9,7 @@ import { Plus } from "./Icons";
 /** Floating WhatsApp (bottom right) and Quick Enquiry (bottom left). Compact on phones. */
 export function FloatingActions() {
   const pathname = usePathname();
-  const { openEnquiry } = useEnquiry();
+  const { openEnquiry, contact } = useEnquiry();
   return (
     <>
       {pathname !== "/enquiry" && (
@@ -22,7 +22,7 @@ export function FloatingActions() {
           Quick Enquiry
         </button>
       )}
-      <WhatsAppButton href={whatsappLink()} className="fixed bottom-4 right-4 z-30 sm:bottom-6 sm:right-6" />
+      <WhatsAppButton href={whatsappLink(undefined, contact.whatsappNumber)} className="fixed bottom-4 right-4 z-30 sm:bottom-6 sm:right-6" />
     </>
   );
 }

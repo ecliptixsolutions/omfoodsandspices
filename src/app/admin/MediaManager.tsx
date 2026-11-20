@@ -1,0 +1,18 @@
+"use client";
+
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+
+type MediaItem={id:string;filename:string;mime_type:string;byte_size:number;width:number|null;height:number|null;alt_text:string;category:string;is_public:boolean;created_at:string;url:string};
+export function MediaManager(){
+ const [items,setItems]=useState<MediaItem[]>([]);const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");
+ const load=useCallback(async()=>{try{const r=await fetch("/api/admin/media",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.message);setItems(d.media);}catch(e){setMessage(e instanceof Error?e.message:"Could not load images.");}},[]);
+ useEffect(()=>{void load();},[load]);
+ async function upload(e:FormEvent<HTMLFormElement>){e.preventDefault();const formElement=e.currentTarget;setBusy(true);setMessage("");try{const form=new FormData(formElement);const r=await fetch("/api/admin/media",{method:"POST",body:form});const d=await r.json();if(!r.ok)throw new Error(d.message);setMessage(`Image uploaded (${d.width??"?"} × ${d.height??"?"}). Its image path is ${d.url}.`);formElement.reset();await load();}catch(error){setMessage(error instanceof Error?error.message:"Upload failed.");}finally{setBusy(false);}}
+ async function remove(item:MediaItem){if(!window.confirm(`Delete ${item.filename}?`))return;const r=await fetch("/api/admin/media",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:item.id})});const d=await r.json();if(!r.ok){setMessage(d.message);return;}setMessage("Image deleted.");await load();}
+ async function copy(url:string){await navigator.clipboard.writeText(url);setMessage("Image path copied.");}
+ return <section className="admin-card"><div className="admin-card-heading"><div><h2>Media library</h2><p>Upload images and reuse them in products and homepage content. Maximum file size: 5 MB.</p></div></div>
+ <form className="admin-upload-form" onSubmit={upload}><label className="admin-field">Image file<input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/avif" required/></label><label className="admin-field">Alt text<input name="altText" maxLength={500} placeholder="Describe the image"/></label><label className="admin-field">Image category<select name="category"><option value="product">Product image</option><option value="homepage">Homepage</option><option value="about">About us</option><option value="gallery">Gallery</option><option value="other">Other</option></select></label><button className="admin-primary-button" disabled={busy}>{busy?"Uploading…":"Upload image"}</button></form>
+ {message&&<p className="admin-inline-message" role="status">{message}</p>}
+ {items.length?<div className="admin-media-grid">{items.map(item=><article className="admin-media-card" key={item.id}><img src={item.url} alt={item.alt_text} loading="lazy"/><div className="admin-media-meta"><b title={item.filename}>{item.filename}</b><small>{item.width??"?"} × {item.height??"?"} · {(item.byte_size/1024).toFixed(0)} KB · {item.category}</small><small>{item.is_public?"Published":"Private draft"} · {new Date(item.created_at).toLocaleDateString()}</small><input readOnly value={item.url} aria-label="Image path"/><div><button className="admin-row-action" onClick={()=>copy(item.url)}>Copy path</button><button className="admin-row-action danger" onClick={()=>remove(item)}>Delete</button></div></div></article>)}</div>:<div className="admin-empty"><span>◌</span><b>No uploaded images yet</b><small>Uploaded images will be listed here.</small></div>}
+ </section>;
+}

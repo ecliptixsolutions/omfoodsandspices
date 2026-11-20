@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { categoryPages } from "@/content/pages";
-import { productsByCategory } from "@/content/products";
+import { type Product } from "@/content/products";
 import { applications } from "@/content/home";
 import { CtaBand } from "./CtaBand";
 import { FaqSection } from "./FaqSection";
@@ -10,11 +11,13 @@ import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 import { breadcrumbLd } from "@/lib/seo";
+import { getPublishedProducts } from "@/lib/products.server";
 
 /** Shared layout for /dehydrated-onions and /dehydrated-garlic: hero, format cards, applications, FAQ, CTA. */
-export function CategoryPage({ category }: { category: "onion" | "garlic" }) {
+export async function CategoryPage({ category }: { category: "onion" | "garlic" }) {
+  const allProducts = await getPublishedProducts();
   const page = categoryPages[category];
-  const list = productsByCategory(category);
+  const list = allProducts.filter((p: Product) => p.category === category && p.form !== "fresh");
   const label = category === "onion" ? "Dehydrated Onions" : "Dehydrated Garlic";
   // applications relevant to this category (derived from product data)
   const apps = Array.from(new Set(list.flatMap((p) => p.applications)));
@@ -48,6 +51,11 @@ export function CategoryPage({ category }: { category: "onion" | "garlic" }) {
             ))}
           </ul>
           <p className="mt-8 text-sm">Formats, specifications and packaging depend on availability and confirmation by the company.</p>
+          <p className="mt-5 flex flex-wrap gap-5">
+            <Link href={category==="onion"?"/blog/onion-powder-vs-granules-vs-minced-onion":"/blog/garlic-flakes-vs-minced-garlic"}>Compare {category} formats for your application</Link>
+            {category==="onion"&&<Link href="/products/pink-onion">Discuss Pink Onion product identity and preparation</Link>}
+            <Link href="/sourcing">Request bulk ingredient sourcing details</Link>
+          </p>
         </div>
       </section>
 
@@ -65,10 +73,10 @@ export function CategoryPage({ category }: { category: "onion" | "garlic" }) {
             </ul>
           </Reveal>
           <Reveal delay={100}>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-line shadow-lift">
+            <div className="image-motion-frame relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-line shadow-lift">
               <Image
                 src={page.image}
-                alt={category === "onion" ? "Dehydrated onion in flake, minced, granule and powder formats in small bowls" : "Dehydrated garlic in flake, minced, granule and powder formats in small bowls"}
+                alt={page.imageAlt}
                 fill
                 sizes="(min-width: 1024px) 560px, 100vw"
                 className="object-cover"

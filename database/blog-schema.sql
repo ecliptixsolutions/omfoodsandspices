@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS om_blog_categories (
+ id CHAR(36) PRIMARY KEY, slug VARCHAR(120) NOT NULL UNIQUE, name VARCHAR(160) NOT NULL,
+ description TEXT NOT NULL, is_visible BOOLEAN NOT NULL DEFAULT TRUE, display_order INT NOT NULL DEFAULT 0, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS om_blog_posts (
+ id CHAR(36) PRIMARY KEY, slug VARCHAR(180) NOT NULL UNIQUE, category_id CHAR(36) NOT NULL,
+ status ENUM('draft','scheduled','published') NOT NULL DEFAULT 'draft', scheduled_at DATETIME NULL,
+ published_at DATETIME NULL, draft_json JSON NOT NULL, published_json JSON NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ INDEX om_blog_publish_idx(status,scheduled_at,published_at),
+ CONSTRAINT om_blog_category_fk FOREIGN KEY(category_id) REFERENCES om_blog_categories(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS om_blog_versions (
+ id CHAR(36) PRIMARY KEY, blog_id CHAR(36) NOT NULL, actor_id CHAR(36) NULL, content_json JSON NOT NULL,
+ action VARCHAR(30) NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ INDEX om_blog_version_idx(blog_id,created_at), FOREIGN KEY(blog_id) REFERENCES om_blog_posts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS om_blog_settings (
+ id TINYINT PRIMARY KEY, content_json JSON NOT NULL, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

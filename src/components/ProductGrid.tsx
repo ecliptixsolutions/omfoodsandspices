@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { productFootnote, products, type Category } from "@/content/products";
+import { productFootnote, products as fallbackProducts, type Category, type Product } from "@/content/products";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Reveal";
 import { Chevron } from "./Icons";
+import type { PublicCategory } from "@/lib/products.server";
 
 type Filter = "all" | Category | `product:${string}`;
 type OpenMenu = Category | null;
 
-const CATEGORIES: { id: Category; label: string }[] = [
-  { id: "onion", label: "Onion" },
-  { id: "garlic", label: "Garlic" },
+const FALLBACK_CATEGORIES: PublicCategory[] = [
+  { slug: "onion", name: "Onion", description:"", image:"", displayOrder:0 },
+  { slug: "garlic", name: "Garlic", description:"", image:"", displayOrder:1 },
 ];
 
 function menuLabel(slug: string, name: string) {
@@ -30,11 +31,11 @@ function menuLabel(slug: string, name: string) {
 }
 
 /** Filterable product grid with category menus and dynamic product filtering. */
-export function ProductGrid({ initial = "all" }: { initial?: "all" | Category }) {
+export function ProductGrid({ initial = "all", items = fallbackProducts, categories = FALLBACK_CATEGORIES }: { initial?: "all" | Category; items?: Product[]; categories?: PublicCategory[] }) {
   const [filter, setFilter] = useState<Filter>(initial);
   const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRefs = useRef<Record<Category, HTMLButtonElement | null>>({ onion: null, garlic: null });
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
     if (!openMenu) return;
@@ -57,13 +58,13 @@ export function ProductGrid({ initial = "all" }: { initial?: "all" | Category })
 
   const selectedSlug = filter.startsWith("product:") ? filter.slice("product:".length) : null;
   const activeCategory = selectedSlug
-    ? products.find((product) => product.slug === selectedSlug)?.category
+    ? items.find((product) => product.slug === selectedSlug)?.category
     : filter === "all" ? null : filter;
   const shown = filter === "all"
-    ? products
+    ? items
     : selectedSlug
-      ? products.filter((product) => product.slug === selectedSlug)
-      : products.filter((product) => product.category === filter);
+      ? items.filter((product) => product.slug === selectedSlug)
+      : items.filter((product) => product.category === filter);
 
   function chooseCategory(category: Category) {
     setFilter(category);
@@ -86,8 +87,8 @@ export function ProductGrid({ initial = "all" }: { initial?: "all" | Category })
         >
           All
         </button>
-        {CATEGORIES.map(({ id, label }) => {
-          const categoryProducts = products.filter((product) => product.category === id);
+        {categories.filter((category) => items.some((product) => product.category === category.slug)).map(({ slug: id, name: label }) => {
+          const categoryProducts = items.filter((product) => product.category === id);
           const isActive = activeCategory === id;
           const isOpen = openMenu === id;
           return (
@@ -131,12 +132,12 @@ export function ProductGrid({ initial = "all" }: { initial?: "all" | Category })
         })}
       </div>
       <p className="sr-only" role="status" aria-live="polite">
-        Showing {shown.length} product{shown.length === 1 ? "" : "s"}{selectedSlug ? `: ${products.find((product) => product.slug === selectedSlug)?.name}` : ""}
+        Showing {shown.length} product{shown.length === 1 ? "" : "s"}{selectedSlug ? `: ${items.find((product) => product.slug === selectedSlug)?.name}` : ""}
       </p>
-      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <ul key={filter} className="product-filter-results grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {shown.map((product, index) => (
           <li key={product.slug}>
-            <Reveal delay={(index % 4) * 70} className="h-full">
+            <Reveal delay={(index % 4) * 100} className="h-full">
               <ProductCard product={product} />
             </Reveal>
           </li>
@@ -144,7 +145,6 @@ export function ProductGrid({ initial = "all" }: { initial?: "all" | Category })
       </ul>
       <div className="mt-8 space-y-2 text-sm">
         <p>{productFootnote}</p>
-        <p className="text-xs">Pink Onion photo: <a href="https://commons.wikimedia.org/wiki/File:Bangalore_rose_onion.jpg" target="_blank" rel="noreferrer">Maaimpex / Wikimedia Commons</a>, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>.</p>
       </div>
     </div>
   );

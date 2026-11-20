@@ -3,15 +3,18 @@ import { LegalPage } from "@/components/LegalPage";
 import { legal } from "@/content/pages";
 import { site } from "@/content/site";
 import { buildMetadata } from "@/lib/seo";
+import { getPublicContact } from "@/lib/site-content.server";
 
 export const metadata: Metadata = buildMetadata({ title: legal.privacy.seoTitle, description: legal.privacy.seoDescription, path: "/privacy" });
 
-export default function PrivacyPage() {
-  const c = site.contact;
+export const dynamic = "force-dynamic";
+
+export default async function PrivacyPage() {
+  const c = await getPublicContact();
   return (
-    <LegalPage title="Privacy Policy" updated="1 November 2026">
+    <LegalPage title="Privacy Policy" updated="18 November 2026">
       <p>
-        This is a general-purpose privacy notice for the {site.name} website. It should be reviewed by the company (and its legal adviser) before launch.
+        This notice explains how the {site.name} website handles ingredient enquiries, language preferences and access to website administration. Contact the company if you have a question about the information you provide.
       </p>
       <h2>Information we collect</h2>
       <p>
@@ -24,8 +27,12 @@ export default function PrivacyPage() {
       <p>The form uses a hidden field and timing checks to block automated spam, and may use Google reCAPTCHA where enabled. Google&apos;s Privacy Policy and Terms apply to reCAPTCHA.</p>
       <h2>Sharing</h2>
       <p>
-        Enquiries are delivered to our email inbox through an email delivery service. We do not sell your information. We may share it where required by law.
+        Enquiries are stored in the company&apos;s enquiry system. Where email delivery is configured, an enquiry notification is also sent through the email delivery service. Website hosting and database providers process information needed to operate these services. We do not sell enquiry information.
       </p>
+      <h2>Language preferences and administration</h2>
+      <p>A language-preference cookie remembers English, Hindi or Gujarati. Restricted administration uses a session cookie to keep authorized users signed in. These controls are separate from submitting a product enquiry.</p>
+      <h2>Optional measurement and external links</h2>
+      <p>Google Analytics loads only when a measurement identifier is configured for this website. WhatsApp, maps and other external links open services with their own privacy terms; a message is sent only when you choose to send it in that service.</p>
       <h2>Retention and your choices</h2>
       <p>We keep enquiry correspondence for as long as needed to handle your request and for ordinary business records. To ask us to access, correct or delete your information, contact us.</p>
       <h2>Contact</h2>

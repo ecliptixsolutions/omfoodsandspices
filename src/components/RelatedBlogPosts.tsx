@@ -1,0 +1,3 @@
+import {unstable_rethrow} from "next/navigation";
+import Link from "next/link";import {publicBlogLinks} from "@/lib/blog.server";
+export async function RelatedBlogPosts({slug}:{slug:string}){let articles;try{articles=await publicBlogLinks(slug);}catch(error){unstable_rethrow(error);console.error("Related blog content unavailable");return null;}const posts=articles;if(!posts.length)return null;return <section className="section section-paper"><div className="container-x"><h2 className="h-section">Ingredient reading</h2><ul className="mt-7 grid gap-4 md:grid-cols-3">{posts.map(p=><li className="card p-6" key={p.id}><Link className="font-bold text-copper-ink" href={`/blog/${p.slug}`}>{p.title} ↗</Link></li>)}</ul></div></section>;}

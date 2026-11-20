@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { site } from "@/content/site";
-import { enquiryToText, validateEnquiry, type EnquiryPayload } from "@/lib/enquiry";
+import { enquiryToText, normalizeEnquiry, validateEnquiry, type EnquiryPayload } from "@/lib/enquiry";
+import { getPublishedProducts } from "@/lib/products.server";
+import { getAdminDb } from "@/lib/admin/db.server";
+import { getPublicContact } from "@/lib/site-content.server";
 
 export const runtime = "nodejs";
 
@@ -48,6 +52,7 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ ok: false, message: "Invalid request." }, { status: 400 });
   }
+  if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ ok: false, message: "Invalid request." }, { status: 400 });
 
   // Honeypot: pretend success so bots don't learn anything.
   if (body.website) return NextResponse.json({ ok: true });
@@ -59,17 +64,37 @@ export async function POST(req: Request) {
 
   const errors = validateEnquiry(body);
   if (Object.keys(errors).length) return NextResponse.json({ ok: false, message: "Please check the highlighted fields.", errors }, { status: 422 });
+  const availableProducts = await getPublishedProducts();
+  const productErrors = validateEnquiry(body, availableProducts.map(product => product.name));
+  if (Object.keys(productErrors).length) return NextResponse.json({ ok: false, message: "Please check the highlighted fields.", errors: productErrors }, { status: 422 });
 
   if (!(await verifyRecaptcha(body.recaptchaToken))) {
     return NextResponse.json({ ok: false, message: "Spam check failed. Please try again." }, { status: 400 });
   }
 
-  const p = body as EnquiryPayload;
+  const p = normalizeEnquiry(body as unknown as Record<string, unknown>);
+  let savedToCrm = false;
+  if (process.env.MYSQL_URL) {
+    try {
+      await getAdminDb().execute(
+        "INSERT INTO om_enquiries (id,type,customer_name,company_name,email,phone,country,product_names,form_size,quantity,unit,packaging,destination,timeline,message) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [randomUUID(), p.type, p.name.trim(), p.company.trim(), p.email.trim().toLowerCase(), p.phone.trim(), p.country.trim(), JSON.stringify(p.products), p.formSize.trim(), p.quantity.trim(), p.unit, p.packaging, p.destination.trim(), p.timeline, p.message.trim()],
+      );
+      savedToCrm = true;
+    } catch (error) {
+      console.error("Could not save website enquiry to MySQL", error);
+    }
+  }
   const text = enquiryToText(p);
-  const to = process.env.ENQUIRY_TO_EMAIL || site.contact.email;
+  const contact = await getPublicContact();
+  const to = process.env.ENQUIRY_TO_EMAIL || contact.email;
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
+    if (savedToCrm) {
+      console.warn("Enquiry saved in MySQL, but RESEND_API_KEY is not configured; no email notification was sent.");
+      return NextResponse.json({ ok: true });
+    }
     // Not configured: never silently lose an enquiry. Log it and tell the visitor to use another channel.
     console.error("RESEND_API_KEY is not set — enquiry NOT delivered:\n" + text);
     return NextResponse.json(
@@ -95,11 +120,13 @@ export async function POST(req: Request) {
     });
     if (!res.ok) {
       console.error("Resend error", res.status, await res.text());
+      if (savedToCrm) return NextResponse.json({ ok: true });
       return NextResponse.json({ ok: false, message: "We could not send your enquiry just now." }, { status: 502 });
     }
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Enquiry send failed", e);
+    if (savedToCrm) return NextResponse.json({ ok: true });
     return NextResponse.json({ ok: false, message: "We could not send your enquiry just now." }, { status: 502 });
   }
 }

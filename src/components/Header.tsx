@@ -77,7 +77,7 @@ function AboutDropdown({ item, pathname }: { item: (typeof nav)[number]; pathnam
   );
 }
 
-export function Header() {
+export function Header({ logo, companyName }: { logo?: string; companyName?: string } = {}) {
   const pathname = usePathname();
   const drawer = useRef<HTMLDialogElement>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -96,10 +96,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-md supports-[backdrop-filter]:bg-paper/80">
       <div className="container-x flex items-center justify-between gap-4 py-3">
-        <Logo />
+        <Logo src={logo} name={companyName} priority/>
 
         {/* Desktop nav */}
-        <nav aria-label="Main" className="hidden xl:block">
+        <nav aria-label="Main" className="hidden min-[1440px]:block">
           <ul className="flex items-center gap-0.5">
             {nav.map((item) =>
               item.children ? (
@@ -128,7 +128,7 @@ export function Header() {
           </EnquiryButton>
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-full border border-line bg-card text-ink xl:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full border border-line bg-card text-ink min-[1440px]:hidden"
             aria-label="Open menu"
             aria-expanded={drawerOpen}
             aria-controls="mobile-drawer"
@@ -151,7 +151,7 @@ export function Header() {
         }}
       >
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <Logo />
+          <Logo src={logo} name={companyName} />
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
@@ -212,3 +212,4 @@ export function Header() {
     </header>
   );
 }
+

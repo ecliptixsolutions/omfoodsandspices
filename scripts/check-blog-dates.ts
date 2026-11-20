@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import {blogDisplayDate,validBlogDisplayDate} from '../src/lib/blog';import {blogPlan} from '../src/content/blog-plan';
+for(const [index,p] of blogPlan.entries()){assert(validBlogDisplayDate(p.date));if(index)assert.equal(Date.parse(p.date)-Date.parse(blogPlan[index-1].date),4*86400000);}
+assert.equal(blogDisplayDate({displayDate:'2026-12-31'},'2026-11-17T00:00:00Z'),'31 December 2026');assert.equal(blogDisplayDate({},'2026-11-17T00:00:00Z'),'17 November 2026');assert(validBlogDisplayDate('2028-02-29'));for(const bad of ['2026-02-29','2026-02-30','2026-13-01','17-11-26',42,null])assert(!validBlogDisplayDate(bad));console.log('PASS: exact four-day dates, India-time rendering, publication fallback and invalid-date rejection.');

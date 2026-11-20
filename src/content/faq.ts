@@ -1,41 +1,35 @@
-/**
- * FAQ answers must stay consistent with the facts the company has provided:
- * formats, enquiry/quotation flow, "subject to company confirmation".
- * No certifications, shelf life, capacities, prices or export countries are claimed.
- */
-export type FaqItem = { q: string; a: string };
-
-export const faqs: FaqItem[] = [
+export type FaqItem={q:string;a:string};
+export const faqs:FaqItem[]=[
   {
-    q: "Which products can I enquire about?",
-    a: "You can enquire about dehydrated onion (flakes / kibbled, minced, granules and powder) and dehydrated garlic (flakes, minced, granules and powder). Product formats and availability are subject to company confirmation.",
+    "q": "What dehydrated onion and garlic products can I source?",
+    "a": "Compare white and red onion flakes, kibbled onion, minced onion, onion granules and onion powder, plus garlic flakes, minced garlic, granules and powder. Confirm the offered grade and current availability with the team."
   },
   {
-    q: "Can I request a sample before placing an order?",
-    a: "Yes. Choose “Get Sample” or select “Sample / Trial Order” in the enquiry form and tell us the product and your destination. Sample availability and terms are confirmed directly by the company.",
+    "q": "How do I request an ingredient sample for a production trial?",
+    "a": "Select Get Sample and include the product, application and destination. State the cut size or mesh you need so the team can discuss an appropriate sample and confirm sample terms."
   },
   {
-    q: "How do I get a quotation?",
-    a: "Fill in the single enquiry form with the product, form, required quantity and destination, or message us on WhatsApp. The team will reply directly. Pricing is shared only after company confirmation.",
+    "q": "What information is needed for a bulk export quotation?",
+    "a": "Send the product form, target specification, required quantity, packaging preference and destination country. These details help the team assess availability, pricing, documentation and shipping arrangements."
   },
   {
-    q: "Can I request custom sizes or packaging?",
-    a: "You can mention the size, mesh or packaging you need in the enquiry. Whether it can be supplied is confirmed directly by the company for each requirement.",
+    "q": "Can buyers specify particle size, mesh and packaging?",
+    "a": "Include the required particle range, acceptable fines, mesh or sieve limits and pack format in your enquiry. The team will confirm whether an offered grade and packaging option meet your brief."
   },
   {
-    q: "Are specifications and certificates available?",
-    a: "Specifications and documentation are discussed and confirmed directly with you for each enquiry. Approved public documents appear on the Certificates & downloads page; other documentation is shared after company confirmation.",
+    "q": "Which product and company documents can buyers request?",
+    "a": "Ask for the available specification and relevant product or batch documents during supplier approval. The Certificates page includes the published GST registration; tax registration is not a food-safety certificate. Other records require company confirmation."
   },
   {
-    q: "Can I request bulk quantities?",
-    a: "Yes. Bulk supply enquiries are welcome. Tell us the quantity you need, and availability and lead times are confirmed directly by the company.",
+    "q": "Can food manufacturers enquire about wholesale quantities?",
+    "a": "Yes. Send your order quantity or expected requirement, ingredient format and delivery schedule. Minimum order, availability and lead time are agreed for the proposed supply."
   },
   {
-    q: "Can I enquire about international shipping?",
-    a: "Yes. Export enquiries are welcome. Share your destination country in the enquiry form; shipping arrangements, documents and timelines depend on confirmation by the company.",
+    "q": "How can overseas buyers discuss onion and garlic shipments?",
+    "a": "Include the destination country, delivery location and any import documentation requirements. Packaging, shipping terms, applicable records and timelines are confirmed for each export enquiry."
   },
   {
-    q: "How do I contact your team?",
-    a: "Use the enquiry form, call +91 81407 12205, message us on WhatsApp, or email Omfoodandspicesllp@gmail.com. We are available Monday–Sunday, 9:00 AM–6:30 PM IST (subject to holiday variations).",
-  },
+    "q": "How can I contact the ingredient enquiry team?",
+    "a": "Use the enquiry form, call +91 81407 12205, message us on WhatsApp, or email Omfoodandspicesllp@gmail.com. We are available Monday–Sunday, 9:00 AM–6:30 PM IST (subject to holiday variations)."
+  }
 ];

@@ -8,7 +8,7 @@ export const site = {
   shortName: "OM Food",
   monogram: "OM",
   tagline: "Natural Flavours. Better Tomorrows.",
-  footerLine: "Onion & garlic ingredients. A world of possibilities.",
+  footerLine: "Dehydrated onion and garlic ingredients from Gujarat, India, for food manufacturers, seasoning companies and bulk export enquiries.",
   topBarText: "ONION & GARLIC PRODUCTS · BULK SUPPLY & EXPORT INQUIRIES WELCOME",
   // Canonical URL — set NEXT_PUBLIC_SITE_URL in Vercel to your production domain
   // (e.g. https://www.yourdomain.com). Falls back to the Vercel production URL, then localhost.
@@ -16,7 +16,7 @@ export const site = {
     process.env.NEXT_PUBLIC_SITE_URL ??
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000")
+      : "https://om-food-exact-preview.vercel.app")
   ).replace(/\/$/, ""),
   foundedYear: 2026,
   contact: {
@@ -70,6 +70,7 @@ export const nav: NavItem[] = [
   { label: "Dehydrated Garlic", href: "/dehydrated-garlic" },
   { label: "Sourcing", href: "/sourcing" },
   { label: "Certificates", href: "/certificates" },
+  { label: "Blog", href: "/blog" },
 ];
 
 export const footerColumns = [
@@ -102,7 +103,8 @@ export const locales = [
   { code: "gu", label: "ગુજરાતી", enabled: true },
 ] as const;
 
-export function whatsappLink(message?: string) {
+export function whatsappLink(message?: string, number = site.contact.whatsappNumber) {
   const text = message ?? "Hello OM Food and Spices LLP, I would like to enquire about your dehydrated onion and garlic products.";
-  return `https://wa.me/${site.contact.whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
 }
+

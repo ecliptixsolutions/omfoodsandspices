@@ -45,6 +45,7 @@ export function Reveal({
   const Comp = Tag as "div";
   return (
     <Comp
+      data-scroll-reveal
       ref={ref as React.RefObject<HTMLDivElement>}
       className={`${cls} ${className}`}
       style={state === "shown" && delay ? { transitionDelay: `${delay}ms` } : undefined}

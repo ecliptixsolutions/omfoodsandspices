@@ -60,9 +60,9 @@ export function PageHero({
           )}
         </div>
         {image && galleryImages?.length ? (
-          <ProductGallery images={galleryImages} alt={imageAlt ?? ""} />
+          <ProductGallery images={galleryImages} alt={imageAlt ?? ""} priority={priorityImage}/>
         ) : image && (
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-line shadow-lift">
+          <div className="image-motion-frame relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-line shadow-lift">
             <Image
               src={image}
               alt={imageAlt ?? ""}

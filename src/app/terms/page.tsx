@@ -8,9 +8,9 @@ export const metadata: Metadata = buildMetadata({ title: legal.terms.seoTitle, d
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Use" updated="1 November 2026">
+    <LegalPage title="Terms of Use" updated="18 November 2026">
       <p>
-        These general terms apply to your use of the {site.name} website. They should be reviewed by the company (and its legal adviser) before launch.
+        These terms explain the use of the {site.name} ingredient catalogue, articles and enquiry facilities. Review the offered specification and written commercial terms before making a purchasing decision.
       </p>
       <h2>Information only</h2>
       <p>
@@ -22,8 +22,8 @@ export default function TermsPage() {
       <p>We try to keep information accurate, but it may change without notice. Please confirm details directly with us before relying on them.</p>
       <h2>Intellectual property</h2>
       <p>The content of this website belongs to {site.name} or its licensors. Please do not reproduce it without permission.</p>
-      <h2>Governing law</h2>
-      <p>The governing law and jurisdiction clause is to be confirmed by the company.</p>
+      <h2>Order-specific terms</h2>
+      <p>Use the written quotation and accepted order documents to confirm product identity, specification, packaging, price and delivery arrangements. General website information does not replace those documents.</p>
     </LegalPage>
   );
 }

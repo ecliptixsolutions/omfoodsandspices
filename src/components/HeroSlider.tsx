@@ -1,110 +1,116 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { heroChips, heroNote, heroSlides } from "@/content/home";
+import { heroBackgroundImages } from "@/content/hero-backgrounds";
+import { useEffect, useRef, useState } from "react";
+import { heroChips as defaultChips, heroNote as defaultNote, heroSlides as defaultSlides } from "@/content/home";
+import {carouselIndex} from "./useCarouselMotion";
 import { ArrowRight, ArrowUpRight } from "./Icons";
 import { useEnquiry } from "./EnquiryProvider";
 
-const INTERVAL = 2250;
-const productSlides = [
-  { image: "/images/products/garlic-flakes-1.webp", alt: "Dehydrated garlic flakes" },
-  { image: "/images/products/white-onion-flakes-1.webp", alt: "White dehydrated onion flakes" },
-  { image: "/images/products/white-onion-granules-1.webp", alt: "White dehydrated onion granules" },
-  { image: "/images/products/garlic-granules-1.webp", alt: "Dehydrated garlic granules" },
-  { image: "/images/products/white-onion-powder-1.webp", alt: "White dehydrated onion powder" },
-  { image: "/images/products/garlic-powder-1.webp", alt: "Dehydrated garlic powder" },
-  { image: "/images/products/red-onion-flakes-1.webp", alt: "Dehydrated red onion flakes" },
-];
+const INTERVAL = 2200;
+
 
 /**
- * Auto-rotating hero. Arrow keys change slides and Space toggles playback when
- * the slider has focus. Autoplay is off for reduced-motion users.
+ * Auto-rotating backgrounds. Failed images are skipped; reduced motion removes the fade.
  */
-export function HeroSlider() {
+export function HeroSlider({ slides = defaultSlides, images = [], note = defaultNote, chips = defaultChips }: { slides?: typeof defaultSlides; images?: {image:string;alt:string;title?:string;description?:string}[]; note?: string; chips?: string[] }) {
   const { openEnquiry } = useEnquiry();
   const [active, setActive] = useState(0);
-  const [userPaused, setUserPaused] = useState(false);
-  const regionRef = useRef<HTMLElement>(null);
-  const count = productSlides.length;
-  const copy = heroSlides[active % heroSlides.length];
+  const visibleImages = images.length ? images : heroBackgroundImages;
+  const count = visibleImages.length;
+  const copy = slides[0] ?? defaultSlides[0];
+  const currentImage = visibleImages[carouselIndex(active, count)];
+  const readyImages = useRef(new Set<number>());
+  const [readyCount, setReadyCount] = useState(0);
+  const playing = readyCount > 1;
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setUserPaused(true);
-  }, []);
-
-  const playing = !userPaused;
+    let cancelled = false;
+    readyImages.current = new Set();
+    setReadyCount(0);
+    visibleImages.forEach(({ image }, index) => {
+      const preload = new window.Image();
+      preload.src = image;
+      preload.decode().then(() => {
+        if (cancelled) return;
+        readyImages.current.add(index);
+        setReadyCount(readyImages.current.size);
+        setActive(previous => readyImages.current.has(carouselIndex(previous, count)) ? previous : index);
+      }).catch(() => {
+        // One unavailable photo must not stop the remaining backgrounds.
+      });
+    });
+    return () => { cancelled = true; };
+  }, [visibleImages, count]);
 
   useEffect(() => {
     if (!playing) return;
-    const t = window.setTimeout(() => setActive((a) => (a + 1) % count), INTERVAL);
-    return () => window.clearTimeout(t);
-  }, [playing, active, count]);
-
-  const go = useCallback((i: number) => setActive(((i % count) + count) % count), [count]);
-
-  function onKeyDown(e: KeyboardEvent<HTMLElement>) {
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      go(active + 1);
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      go(active - 1);
-    } else if (e.key === " " && e.target === e.currentTarget) {
-      // only when the slider itself is focused, so buttons and links keep their normal Space behaviour
-      e.preventDefault();
-      setUserPaused((p) => !p);
-    }
-  }
+    const timer = window.setInterval(() => setActive(previous => {
+      for (let step = 1; step <= count; step++) {
+        const next = previous + step;
+        if (readyImages.current.has(carouselIndex(next, count))) return next;
+      }
+      return previous;
+    }), INTERVAL);
+    return () => window.clearInterval(timer);
+  }, [playing, count]);
 
   return (
     <section
-      ref={regionRef}
       aria-roledescription="carousel"
       aria-label="Featured products"
-      tabIndex={0}
-      onKeyDown={onKeyDown}
-      className="on-dark relative isolate min-h-[39rem] overflow-hidden bg-forest text-on-forest outline-offset-[-4px] md:min-h-[46rem]"
+      className="hero-two-column on-dark bg-forest text-on-forest"
     >
-      <div className="absolute inset-0 z-0 overflow-hidden">
-      <div className="flex h-full transition-transform duration-1000 ease-in-out" style={{ width: `${count * 100}%`, transform: `translateX(-${(active * 100) / count}%)` }}>
-        {productSlides.map((slide, i) => (
-          <div key={slide.image} className="relative h-[39rem] shrink-0 md:h-[46rem]" style={{ width: `${100 / count}%` }} aria-hidden={i !== active}>
-            <Image src={slide.image} alt={slide.alt} fill priority={i === 0} sizes="100vw" className="object-cover object-center" />
-          </div>
-        ))}
-      </div>
-      </div>
-      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-forest/90 via-forest/65 to-forest/35" aria-hidden="true" />
-      <div className="container-x relative z-[2] flex min-h-[39rem] flex-col justify-center pb-24 pt-16 md:min-h-[46rem] md:pb-28 md:pt-28">
+      <link rel="preload" as="image" href={visibleImages[0]?.image} />
+      <div className="container-x hero-two-column-grid">
+      <div className="hero-company-copy hero-copy-entrance">
         <p className="eyebrow mb-5 !text-copper-light">{copy.eyebrow}</p>
-        <h1 className="h-display max-w-3xl !text-on-forest">
-          {copy.lines[0]}
-          <br className="hidden sm:block" /> <span className="text-copper-light">{copy.lines[1]}</span>
+        <h1 data-no-translate className="h-display hero-company-heading !text-on-forest">
+          <span className="text-copper-light">{copy.lines[0]}</span>
+          <br /> <span className="text-on-forest">{copy.lines[1]}</span>
         </h1>
         <p className="mt-6 max-w-xl text-lg text-on-forest-muted md:text-xl">{copy.text}</p>
 
         <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-7">
           <button type="button" className="btn btn-primary" onClick={() => openEnquiry({ type: "quote", productSlugs: copy.primary.product ? [copy.primary.product] : undefined })}>
-            {copy.primary.label} <ArrowUpRight size={16} />
+            Request a quote <ArrowUpRight size={16} />
           </button>
           <Link href={copy.secondary.href} className="link-arrow !text-on-forest hover:!text-copper-light">
-            {copy.secondary.label} <ArrowRight size={16} />
+            Explore our products <ArrowRight size={16} />
           </Link>
         </div>
 
-        <p className="mt-9 text-sm text-on-forest-muted">{heroNote}</p>
+        <p className="mt-9 text-sm text-on-forest-muted">{note}</p>
         <ul className="mt-3 flex flex-wrap gap-2">
-          {heroChips.map((c) => (
+          {chips.map((c) => (
             <li key={c} className="chip text-xs sm:text-sm">{c}</li>
           ))}
         </ul>
       </div>
 
+      <figure className="hero-product-carousel" aria-label="Product and manufacturing photographs">
+        <div className="hero-product-media">
+          {visibleImages.map((slide, index) => (
+            <div key={slide.image} className="hero-product-slide transition-opacity duration-[600ms] ease-in-out motion-reduce:transition-none"
+              style={{ opacity: index === carouselIndex(active, count) ? 1 : 0 }}
+              aria-hidden={index !== carouselIndex(active, count)}>
+              <img src={slide.image} alt={slide.alt} className="hero-product-image" width={380} height={250} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : "auto"} />
+            </div>
+          ))}
+          <span aria-hidden="true" className="hero-carousel-progress"><i style={{ width: `${((carouselIndex(active, count) + 1) / count) * 100}%` }} /></span>
+        </div>
+        <figcaption key={currentImage.image} className="hero-product-caption hero-caption-transition">
+          <h2>{currentImage.title ?? currentImage.alt}</h2>
+          <p>{currentImage.description ?? ""}</p>
+        </figcaption>
+      </figure>
+      </div>
+
       <p className="sr-only" aria-live={playing ? "off" : "polite"}>
-        Slide {active + 1} of {count}
+        Slide {carouselIndex(active,count) + 1} of {count}
       </p>
     </section>
   );
 }
+

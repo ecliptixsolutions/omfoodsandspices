@@ -1,0 +1,22 @@
+import {chromium} from '@playwright/test';import assert from 'node:assert/strict';import {mkdir,writeFile} from 'node:fs/promises';import {blogPlan} from '../src/content/blog-plan';import {blogDate} from '../src/lib/blog';
+const base='https://om-food-exact-preview.vercel.app';
+async function main(){const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});const page=await browser.newPage({viewport:{width:1440,height:1000}});const results:{check:string;status:string}[]=[];const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));function check(name:string,ok:boolean){results.push({check:name,status:ok?'PASS':'FAIL'});console.log((ok?'PASS ':'FAIL ')+name);assert(ok,name);}try{
+ await page.goto(base+'/blog',{waitUntil:'networkidle',timeout:60000});
+ check('All 12 blog cards on the initial public page',await page.locator('article').count()===12);
+ const headings=await page.locator('article h2').allTextContents();check('All original titles present without duplicates',new Set(headings).size===12&&blogPlan.every(p=>headings.includes(p.title)));
+ for(const plan of blogPlan){const card=page.locator('article').filter({has:page.getByRole('heading',{name:plan.title,exact:true})});check('Card date '+plan.date,await card.getByText(new RegExp('^'+blogDate(plan.date+'T00:00:00+05:30')+' ·')).count()===1);}
+ check('No second page needed',await page.getByRole('navigation',{name:'Blog pages'}).count()===0);
+ const imageSrc=await page.locator('article img').evaluateAll(images=>images.map(i=>i.getAttribute('src')));check('12 distinct thumbnail references',new Set(imageSrc).size===12);
+ const documentRequests:string[]=[];page.on('request',r=>{if(r.resourceType()==='document')documentRequests.push(r.url())});
+ for(const [slug,count] of [['onion',4],['garlic',2],['processing',4],['sourcing',2]] as const){await page.locator('#blog-category').selectOption(slug);check(slug+' category has '+count+' published articles',await page.locator('article').count()===count);}
+ await page.locator('#blog-category').selectOption('garlic');await page.locator('#blog-search').fill('garlic');await page.getByRole('button',{name:'Find articles',exact:true}).click();check('Combined search and category',await page.locator('article').count()===2);
+ await page.getByRole('button',{name:'Clear',exact:true}).click();check('Clear restores all 12',await page.locator('article').count()===12);
+ check('Filters do not reload the document',documentRequests.length===0);
+ const metaTitles:string[]=[];
+ const xml=await (await page.request.get(base+'/sitemap.xml')).text();
+ for(const plan of blogPlan){const response=await page.request.get(base+'/blog/'+plan.slug,{timeout:60000,maxRetries:2});const html=await response.text();check('Public article '+plan.slug,response.status()===200&&html.includes(plan.title));check('Article date '+plan.date,html.includes(blogDate(plan.date+'T00:00:00+05:30')));metaTitles.push(html.match(/<title>(.*?)<\/title>/s)?.[1]||'');check('Sitemap includes '+plan.slug,xml.includes('/blog/'+plan.slug));}
+ check('All article SEO titles unique',metaTitles.every(Boolean)&&new Set(metaTitles).size===12);
+ for(const width of [390,768,1280,1440]){await page.setViewportSize({width,height:900});check('All cards visible without horizontal overflow '+width,await page.locator('article').count()===12&&await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}
+ for(const image of await page.locator('article img').all()){await image.scrollIntoViewIfNeeded();await image.evaluate((el:HTMLImageElement)=>el.decode());}check('All 12 thumbnails load',await page.locator('article img').evaluateAll(images=>images.every(i=>(i as HTMLImageElement).naturalWidth>0)));await mkdir('audit/blog',{recursive:true});await page.evaluate(()=>{(document.activeElement as HTMLElement)?.blur();window.scrollTo({top:0,behavior:'instant'})});await page.screenshot({path:'audit/blog/all-12-public-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:900});await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:'audit/blog/all-12-public-mobile.png',fullPage:true});check('No browser runtime exceptions',errors.length===0);
+ }finally{await mkdir('audit/blog',{recursive:true});await writeFile('audit/blog/all-12-public-results.json',JSON.stringify({checkedAt:new Date().toISOString(),results},null,2));await browser.close();}}
+main().catch(e=>{console.error(e.message);process.exitCode=1});

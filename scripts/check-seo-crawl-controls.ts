@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {NextRequest} from 'next/server';
+import {middleware} from '../src/middleware';
+import robots from '../src/app/robots';
+import {COUNTRIES} from '../src/lib/countries';
+const tag=(p:string)=>middleware(new NextRequest('https://om-food-exact-preview.vercel.app'+p)).headers.get('X-Robots-Tag');
+assert(tag('/admin/login')?.includes('noindex'));assert(tag('/api/admin/products')?.includes('noindex'));assert(tag('/?preview=1')?.includes('noindex'));
+assert.equal(tag('/api/media/00000000-0000-0000-0000-000000000000'),null);assert.equal(tag('/products'),null);
+const rule=(robots().rules as {allow:string[]}[])[0];assert(rule.allow.includes('/api/media/'));
+assert.equal(COUNTRIES.length,249);assert.equal(new Set(COUNTRIES.map(c=>c.code)).size,249);assert(COUNTRIES.find(c=>c.code==='FK')?.name);assert(COUNTRIES.some(c=>c.name==='India'));
+console.log('PASS: public media crawl allowance, private preview/admin headers and deterministic country labels.');

@@ -1,0 +1,26 @@
+const entries = [
+  ["Exporting India’s Finest", "भारत के बेहतरीन उत्पादों का निर्यात", "ભારતના શ્રેષ્ઠ ઉત્પાદનોની નિકાસ"],
+  ["Dehydrated Onion & Garlic.", "निर्जलित प्याज़ और लहसुन।", "ડિહાઇડ્રેટેડ ડુંગળી અને લસણ."],
+  ["DEHYDRATED ONION & GARLIC INGREDIENTS", "निर्जलित प्याज़ और लहसुन की सामग्री", "ડિહાઇડ્રેટેડ ડુંગળી અને લસણની સામગ્રી"],
+  ["Enter a name with 2–160 characters using letters.", "अक्षरों का उपयोग करके 2–160 वर्णों का नाम दर्ज करें।", "અક્ષરોનો ઉપયોગ કરીને 2–160 અક્ષરનું નામ દાખલ કરો."],
+  ["Please enter a valid email address.", "कृपया सही ईमेल पता दर्ज करें।", "કૃપા કરીને માન્ય ઈમેઇલ સરનામું દાખલ કરો."],
+  ["Enter a phone number with 7–15 digits, including country code.", "देश कोड सहित 7–15 अंकों का फोन नंबर दर्ज करें।", "દેશના કોડ સહિત 7–15 અંકનો ફોન નંબર દાખલ કરો."],
+  ["Please select a country.", "कृपया देश चुनें।", "કૃપા કરીને દેશ પસંદ કરો."],
+  ["Select a country", "देश चुनें", "દેશ પસંદ કરો"],
+  ["Select one or more available products without duplicates.", "बिना दोहराव के एक या अधिक उपलब्ध उत्पाद चुनें।", "પુનરાવર્તન વિના એક અથવા વધુ ઉપલબ્ધ ઉત્પાદનો પસંદ કરો."],
+  ["Select a quotation or sample request.", "कोटेशन या नमूने का अनुरोध चुनें।", "ક્વોટેશન અથવા નમૂનાની વિનંતી પસંદ કરો."],
+  ["Please select a valid quantity unit.", "कृपया मात्रा की सही इकाई चुनें।", "કૃપા કરીને જથ્થાનું માન્ય એકમ પસંદ કરો."],
+  ["Select a quantity unit that matches your request type.", "अपने अनुरोध के अनुसार मात्रा की इकाई चुनें।", "તમારી વિનંતી મુજબ જથ્થાનું એકમ પસંદ કરો."],
+  ["Enter a quantity greater than zero, for example 500 or 1,000.", "शून्य से अधिक मात्रा दर्ज करें, जैसे 500 या 1,000।", "શૂન્યથી વધુ જથ્થો દાખલ કરો, જેમ કે 500 અથવા 1,000."],
+  ["Quantity is not required for sample requests.", "नमूने के अनुरोध के लिए मात्रा आवश्यक नहीं है।", "નમૂનાની વિનંતી માટે જથ્થો જરૂરી નથી."],
+  ["Please select a packaging option.", "कृपया पैकिंग का विकल्प चुनें।", "કૃપા કરીને પેકિંગનો વિકલ્પ પસંદ કરો."],
+  ["Please select a delivery timeline.", "कृपया डिलीवरी का समय चुनें।", "કૃપા કરીને ડિલિવરીનો સમય પસંદ કરો."],
+  ["Please keep your message under 2000 characters.", "कृपया संदेश 2000 वर्णों तक रखें।", "કૃપા કરીને સંદેશ 2000 અક્ષર સુધી રાખો."],
+  ["Please use 200 characters or fewer.", "कृपया 200 या कम वर्णों का उपयोग करें।", "કૃપા કરીને 200 કે ઓછા અક્ષર વાપરો."],
+  ["Please enter text in this field.", "कृपया इस फ़ील्ड में टेक्स्ट दर्ज करें।", "કૃપા કરીને આ ખાને લખાણ દાખલ કરો."],
+  ["Please check the highlighted fields.", "कृपया चिह्नित फ़ील्ड जाँचें।", "કૃપા કરીને દર્શાવેલા ખાના તપાસો."],
+] as const;
+export const validationTranslations = {
+  hi: Object.fromEntries(entries.map(([en, hi]) => [en, hi])),
+  gu: Object.fromEntries(entries.map(([en, , gu]) => [en, gu])),
+};

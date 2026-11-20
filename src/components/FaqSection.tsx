@@ -7,8 +7,8 @@ import { SectionHeading } from "./SectionHeading";
 /** FAQ section with FAQPage JSON-LD. Pass `items` for page-specific FAQs. */
 export function FaqSection({
   items = faqs,
-  line1 = "Before we",
-  line2 = "get started.",
+  line1 = "Bulk ingredient sourcing",
+  line2 = "buyer questions answered.",
   eyebrow = "Buyer FAQs",
   tone = "paper",
   id = "faq",

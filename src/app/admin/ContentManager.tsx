@@ -1,0 +1,28 @@
+"use client";
+
+import { useEffect, useState, type ReactNode } from "react";
+import * as homeDefaults from "@/content/home";
+
+type HomeDraft = {
+  heroSlides: { eyebrow: string; lines: [string,string]; title: string; text: string; primary: { label: string; action: "quote"; product?: string }; secondary: { label: string; href: string }; image: string; imageAlt: string }[];
+  heroNote: string; heroChips: string[];
+  aboutTeaser: { eyebrow: string; title: [string,string]; copy: string; cta: { label:string; href:string }; image:string; imageAlt:string };
+};
+
+export function ContentManager() {
+  const [home,setHome]=useState<HomeDraft>(homeDefaults as unknown as HomeDraft);
+  const [busy,setBusy]=useState(false); const [message,setMessage]=useState("");
+  useEffect(()=>{ void (async()=>{ try { const r=await fetch("/api/admin/content",{cache:"no-store"}); const data=await r.json(); if(!r.ok) throw new Error(data.message); for(const item of data.content as {key:string;draft:unknown}[]){if(item.key==="home"&&item.draft)setHome(item.draft as HomeDraft);} } catch(e){setMessage(e instanceof Error?e.message:"Could not load saved content.");} })(); },[]);
+  function setHero(i:number,key:"eyebrow"|"line1"|"line2"|"text"|"button"|"link"|"image"|"imageAlt",value:string){setHome(prev=>{const heroSlides=prev.heroSlides.map((s,index)=>{if(index!==i)return s; const next={...s,lines:[...s.lines] as [string,string],primary:{...s.primary},secondary:{...s.secondary}}; if(key==="eyebrow")next.eyebrow=value; if(key==="line1")next.lines[0]=value; if(key==="line2")next.lines[1]=value; if(key==="text")next.text=value; if(key==="button")next.primary.label=value; if(key==="link")next.secondary.label=value; if(key==="image")next.image=value; if(key==="imageAlt")next.imageAlt=value; return next;}); return {...prev,heroSlides};});}
+  async function save(publish:boolean){if(publish&&!window.confirm("Publish these changes to the live website?"))return;setBusy(true);setMessage("");try{const key="home",value=home;const r=await fetch("/api/admin/content",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({key,value,publish})});const data=await r.json();if(!r.ok)throw new Error(data.message);setMessage(publish?"Changes published to the website.":"Draft saved. The website is unchanged.");}catch(e){setMessage(e instanceof Error?e.message:"Could not save changes.");}finally{setBusy(false);}}
+  return <section className="admin-card admin-editor"><div className="admin-card-heading"><div><h2>Homepage content</h2><p>Save a draft first, then publish when you are ready.</p></div></div>
+    <>
+      <div className="admin-content-block"><h3>Homepage hero slides</h3><p>Edit the existing rotating hero content and image paths.</p>{home.heroSlides.map((slide,i)=><div className="admin-content-slide" key={i}><h4>Slide {i+1}</h4><div className="admin-form-grid">
+        <Field label="Small heading"><input value={slide.eyebrow} onChange={e=>setHero(i,"eyebrow",e.target.value)}/></Field><Field label="Main heading · first line"><input value={slide.lines[0]} onChange={e=>setHero(i,"line1",e.target.value)}/></Field><Field label="Main heading · second line"><input value={slide.lines[1]} onChange={e=>setHero(i,"line2",e.target.value)}/></Field><Field label="Description"><textarea rows={3} value={slide.text} onChange={e=>setHero(i,"text",e.target.value)}/></Field><Field label="Button text"><input value={slide.primary.label} onChange={e=>setHero(i,"button",e.target.value)}/></Field><Field label="Secondary link text"><input value={slide.secondary.label} onChange={e=>setHero(i,"link",e.target.value)}/></Field><Field label="Image path"><input value={slide.image} onChange={e=>setHero(i,"image",e.target.value)}/></Field><Field label="Image description"><input value={slide.imageAlt} onChange={e=>setHero(i,"imageAlt",e.target.value)}/></Field>
+      </div></div>)}</div>
+      <div className="admin-form-grid admin-content-bottom"><Field label="Hero note"><input value={home.heroNote} onChange={e=>setHome({...home,heroNote:e.target.value})}/></Field><Field label="Hero chips · one per line"><textarea rows={3} value={home.heroChips.join("\n")} onChange={e=>setHome({...home,heroChips:e.target.value.split("\n").map(x=>x.trim()).filter(Boolean)})}/></Field><Field label="About section heading · first line"><input value={home.aboutTeaser.title[0]} onChange={e=>setHome({...home,aboutTeaser:{...home.aboutTeaser,title:[e.target.value,home.aboutTeaser.title[1]]}})}/></Field><Field label="About section heading · second line"><input value={home.aboutTeaser.title[1]} onChange={e=>setHome({...home,aboutTeaser:{...home.aboutTeaser,title:[home.aboutTeaser.title[0],e.target.value]}})}/></Field><Field label="About section description" wide><textarea rows={4} value={home.aboutTeaser.copy} onChange={e=>setHome({...home,aboutTeaser:{...home.aboutTeaser,copy:e.target.value}})}/></Field><Field label="About image path"><input value={home.aboutTeaser.image} onChange={e=>setHome({...home,aboutTeaser:{...home.aboutTeaser,image:e.target.value}})}/></Field></div>
+    </>
+    {message&&<p className="admin-inline-message" role="status">{message}</p>}<div className="admin-editor-footer"><button className="admin-secondary-button" disabled={busy} onClick={()=>save(false)}>{busy?"Saving…":"Save draft"}</button><button className="admin-primary-button" disabled={busy} onClick={()=>save(true)}>{busy?"Saving…":"Publish changes"}</button></div>
+  </section>;
+}
+function Field({label,children,wide=false}:{label:string;children:ReactNode;wide?:boolean}){return <label className={`admin-field ${wide?"wide":""}`}><span>{label}</span>{children}</label>;}

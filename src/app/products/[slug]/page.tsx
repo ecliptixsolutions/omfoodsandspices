@@ -1,3 +1,5 @@
+import {Suspense} from "react";
+import { RelatedBlogPosts } from "@/components/RelatedBlogPosts";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,29 +11,30 @@ import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageHero } from "@/components/PageHero";
-import { productBySlug, products, productsByCategory, productFootnote } from "@/content/products";
+import { productFootnote } from "@/content/products";
 import { site } from "@/content/site";
 import { abs, breadcrumbLd, buildMetadata } from "@/lib/seo";
+import { getPublishedProducts } from "@/lib/products.server";
 
 type Params = { slug: string };
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
-  const p = productBySlug(slug);
+  const products = await getPublishedProducts();
+  const p = products.find((item) => item.slug === slug);
   if (!p) return {};
   return buildMetadata({ title: p.seoTitle, description: p.seoDescription, path: `/products/${p.slug}`, image: p.image });
 }
 
 export default async function ProductPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const p = productBySlug(slug);
+  const products = await getPublishedProducts();
+  const p = products.find((item) => item.slug === slug);
   if (!p) notFound();
 
-  const related = productsByCategory(p.category).filter((x) => x.slug !== p.slug);
+  const related = products.filter((x) => x.category === p.category && x.form !== "fresh" && x.slug !== p.slug);
   const parent = p.form === "fresh"
     ? { label: "All products", href: "/products" }
     : p.category === "onion" ? { label: "Dehydrated Onions", href: "/dehydrated-onions" } : { label: "Dehydrated Garlic", href: "/dehydrated-garlic" };
@@ -90,11 +93,11 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           </Reveal>
           <Reveal delay={160}>
             <article className="section-forest on-dark h-full rounded-[1.25rem] border border-forest p-7 shadow-card">
-              <h2 className="text-xl">Specifications on request</h2>
+              <h2 className="text-xl">Request the offered specification</h2>
               <p className="mt-4">
-                Size, grade, mesh, technical specifications, packaging and documentation are confirmed directly by the company for your requirement.
+                Share the required cut size or mesh, food application, quantity and destination. Ask for a representative sample and the available product documents before approving the offered grade.
               </p>
-              <EnquiryButton className="mt-6" productSlugs={[p.slug]}>Enquire</EnquiryButton>
+              <EnquiryButton className="mt-6" productSlugs={[p.slug]}>Request product details</EnquiryButton>
             </article>
           </Reveal>
         </div>
@@ -114,10 +117,11 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           <p className="mt-8">
             <Link href={parent.href} className="link-arrow">Back to {parent.label}</Link>
           </p>
-          {p.form === "fresh" && <p className="mt-5 text-xs">Photograph: <a href="https://commons.wikimedia.org/wiki/File:Bangalore_rose_onion.jpg" target="_blank" rel="noreferrer">Maaimpex / Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>.</p>}
+          {p.image === "/images/products/pink-onion.jpg" && <p className="mt-5 text-xs">Photograph: <a href="https://commons.wikimedia.org/wiki/File:Bangalore_rose_onion.jpg" target="_blank" rel="noreferrer">Maaimpex / Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>.</p>}
         </div>
       </section>
 
+      <Suspense fallback={null}><RelatedBlogPosts slug={p.slug}/></Suspense>
       <CtaBand productSlugs={[p.slug]} />
       <JsonLd data={productLd} />
       <JsonLd
@@ -130,3 +134,5 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
     </>
   );
 }
+
+

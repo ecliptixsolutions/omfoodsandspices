@@ -7,8 +7,10 @@ import { PageHero } from "./PageHero";
 import { Placeholder } from "./Placeholder";
 import { Reveal } from "./Reveal";
 import { breadcrumbLd } from "@/lib/seo";
+import { getPublishedPage } from "@/lib/site-content.server";
 
-export function InfoPageView({ page }: { page: InfoPage }) {
+export async function InfoPageView({ page: sourcePage }: { page: InfoPage }) {
+  const page = await getPublishedPage(sourcePage.path, sourcePage);
   const aboutLinks = nav.find((n) => n.children)?.children ?? [];
   const crumbs =
     page.path === "/about"
@@ -30,6 +32,7 @@ export function InfoPageView({ page }: { page: InfoPage }) {
                 </section>
               </Reveal>
             ))}
+            <p className="flex flex-wrap gap-5"><Link href="/dehydrated-onions">Explore dehydrated onion formats</Link><Link href="/dehydrated-garlic">Compare dehydrated garlic ingredients</Link><Link href="/sourcing">Plan a bulk ingredient enquiry</Link></p>
           </div>
           <aside aria-label="More about OM Food" className="lg:sticky lg:top-32 lg:self-start">
             <div className="card p-6">

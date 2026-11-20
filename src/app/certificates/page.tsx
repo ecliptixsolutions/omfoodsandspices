@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { CtaBand } from "@/components/CtaBand";
 import { EnquiryButton } from "@/components/EnquiryButton";
 import { JsonLd } from "@/components/JsonLd";
@@ -42,6 +43,9 @@ export default function CertificatesPage() {
               ))}
             </ul>
           )}
+          <div className="mt-10 flex justify-center border-t border-line pt-8">
+            <Image src="/images/certificates/fssai-logo-transparent.png" alt="Food Safety and Standards Authority of India (FSSAI)" width={360} height={120} className="fssai-logo-animation h-auto w-full max-w-[22rem] object-contain" />
+          </div>
         </div>
       </section>
       <CtaBand />

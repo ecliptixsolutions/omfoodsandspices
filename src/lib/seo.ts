@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/content/site";
+import type { ContactSettings } from "@/lib/site-content.server";
 
 type Opts = {
   title: string;
@@ -24,7 +25,7 @@ export function buildMetadata({ title, description, path, image = "/images/og-de
       title,
       description,
       url,
-      images: [{ url: image, width: 1405, height: 775, alt: `${site.name} — dehydrated onion and garlic ingredients` }],
+      images: [{ url: image, alt: title }],
     },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
@@ -45,16 +46,15 @@ export function breadcrumbLd(trail: { name: string; path: string }[]) {
   };
 }
 
-export function organizationLd() {
-  const c = site.contact;
+export function organizationLd(c: ContactSettings = site.contact, name: string = site.name, logo = "/images/logo.png") {
   return [
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "@id": `${site.url}/#organization`,
-      name: site.name,
+      name,
       url: site.url,
-      logo: abs("/images/logo.png"),
+      logo: logo.startsWith("https://") ? logo : abs(logo),
       slogan: site.tagline,
       description:
         "Dehydrated onion and garlic ingredients — flakes, minced, granules and powder — for food manufacturers, seasoning companies, commercial kitchens, importers and bulk buyers.",
@@ -76,10 +76,10 @@ export function organizationLd() {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "@id": `${site.url}/#localbusiness`,
-      name: site.name,
+      name,
       url: site.url,
       image: abs("/images/og-default.png"),
-      logo: abs("/images/logo.png"),
+      logo: logo.startsWith("https://") ? logo : abs(logo),
       telephone: c.phoneTel,
       email: c.email,
       address: { "@type": "PostalAddress", ...c.address },

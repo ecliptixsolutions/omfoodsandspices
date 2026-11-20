@@ -9,23 +9,25 @@ import { WorkingTogether } from "@/components/home/WorkingTogether";
 import { CtaBand } from "@/components/CtaBand";
 import { FaqSection } from "@/components/FaqSection";
 import { HeroSlider } from "@/components/HeroSlider";
+import { heroBackgroundImages } from "@/content/hero-backgrounds";
 import { Ticker } from "@/components/Ticker";
 import { buildMetadata } from "@/lib/seo";
+import { getPublicHome, getPublicGeneralSettings } from "@/lib/site-content.server";
+import { getPublishedCategories, getPublishedProducts } from "@/lib/products.server";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Dehydrated Onion & Garlic Manufacturer India | OM Food and Spices LLP",
-  description:
-    "Dehydrated onion manufacturer and dehydrated garlic supplier in Gujarat, India. Onion flakes, onion powder, garlic granules and more. Bulk supply and export enquiries welcome.",
-  path: "/",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicGeneralSettings();
+  return buildMetadata({ title: settings.websiteTitle, description: settings.seoDescription, path: "/" });
+}
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [home, products, categories] = await Promise.all([getPublicHome(), getPublishedProducts(), getPublishedCategories()]);
   return (
     <>
-      <HeroSlider />
+      <HeroSlider slides={home.heroSlides} images={heroBackgroundImages} note={home.heroNote} chips={home.heroChips} />
       <Ticker />
-      <ProductRange />
-      <AboutTeaser />
+      <ProductRange items={products} categories={categories} />
+      <AboutTeaser content={home.aboutTeaser} />
       <WorkingTogether />
       <Formats />
       <Applications />

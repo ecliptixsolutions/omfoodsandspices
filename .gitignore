@@ -1,5 +1,6 @@
 node_modules
 .next
+.next-stale-*/
 out
 .env
 .env.local
@@ -11,3 +12,7 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Local benchmark source snapshots; keep them out of scanners and bundles.
+audit/performance/source-before/
+audit/seo/source-before/
