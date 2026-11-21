@@ -43,8 +43,9 @@ export default function CertificatesPage() {
               ))}
             </ul>
           )}
-          <div className="mt-10 flex justify-center border-t border-line pt-8">
-            <Image src="/images/certificates/fssai-logo.png" alt="FSSAI – Food Safety and Standards Authority of India" width={220} height={132} className="h-auto w-full max-w-[10rem] object-contain sm:max-w-[13.75rem]" />
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-8 border-t border-line pt-8 sm:gap-10">
+            <Image src="/images/certificates/fssai-logo.png" alt="FSSAI – Food Safety and Standards Authority of India" width={240} height={144} className="h-auto w-full max-w-[10rem] object-contain sm:max-w-[15rem]" />
+            <Image src="/images/certificates/apeda-logo.png" alt="APEDA – Agricultural and Processed Food Products Export Development Authority" width={210} height={158} className="h-auto w-full max-w-[9.375rem] object-contain sm:max-w-[13.125rem]" />
           </div>
         </div>
       </section>
