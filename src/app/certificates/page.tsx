@@ -46,6 +46,7 @@ export default function CertificatesPage() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-8 border-t border-line pt-8 sm:gap-10">
             <Image src="/images/certificates/fssai-logo.png" alt="FSSAI – Food Safety and Standards Authority of India" width={240} height={144} className="h-auto w-full max-w-[10rem] object-contain sm:max-w-[15rem]" />
             <Image src="/images/certificates/apeda-logo.png" alt="APEDA – Agricultural and Processed Food Products Export Development Authority" width={210} height={158} className="h-auto w-full max-w-[9.375rem] object-contain sm:max-w-[13.125rem]" />
+            <Image src="/images/certificates/udyam-registration.png" alt="UDYAM Registration" width={180} height={180} className="h-auto w-full max-w-[8rem] object-contain sm:max-w-[11.25rem]" />
           </div>
         </div>
       </section>
