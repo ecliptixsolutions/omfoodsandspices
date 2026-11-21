@@ -66,7 +66,10 @@ export function Footer({ contact = site.contact, logo, companyName = site.name }
       {/* extra bottom padding on small screens keeps the floating buttons clear of the legal links */}
       <div className="border-t border-line-forest">
         <div className="container-x flex flex-col items-center justify-between gap-3 pb-24 pt-6 text-sm sm:flex-row sm:pb-6">
-          <p>© 2026 {companyName}</p>
+          <div>
+            <p>© 2026 {companyName}</p>
+            <p className="mt-1 text-xs">Designed and Developed by <a href="https://www.ecliptixsolutions.com/" target="_blank" rel="noopener noreferrer" className="font-medium text-on-forest no-underline hover:text-copper-light hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-copper-light">Ecliptix Solutions</a></p>
+          </div>
           <ul className="flex items-center gap-5">
             <li><Link href="/privacy" className="text-on-forest no-underline hover:text-copper-light hover:underline">Privacy</Link></li>
             <li><Link href="/terms" className="text-on-forest no-underline hover:text-copper-light hover:underline">Terms</Link></li>
