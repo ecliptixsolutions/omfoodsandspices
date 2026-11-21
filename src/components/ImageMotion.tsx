@@ -15,7 +15,7 @@ export function ImageMotion() {
     const animations = new Set<Animation>();
     const cleanup: (() => void)[] = [];
     const frames: Keyframe[] = [
-      { opacity: 0, transform: "translateY(20px) scale(.97)" },
+      { opacity: 0, transform: "translateY(8px)" },
       { opacity: 1, transform: "none" },
     ];
     let initialStagger = 0;
@@ -32,7 +32,7 @@ export function ImageMotion() {
         const target = entry.target as HTMLElement;
         target.dataset.imageReveal = "done";
         observer.unobserve(target);
-        animate(target, frames, 700, (stagger++ % 4) * 100);
+        animate(target, frames, 400, (stagger++ % 4) * 100);
       }
     }, { threshold: .05 });
     function reveal(target: HTMLElement) {
@@ -48,7 +48,7 @@ export function ImageMotion() {
         target.dataset.imageReveal = "initial";
         const frame = requestAnimationFrame(() => {
           target.dataset.imageReveal = "done";
-          animate(target, frames, 700, (initialStagger++ % 4) * 100);
+          animate(target, frames, 400, (initialStagger++ % 4) * 100);
         });
         cleanup.push(() => cancelAnimationFrame(frame));
         return;
@@ -58,6 +58,7 @@ export function ImageMotion() {
     }
     function register(image: HTMLImageElement) {
       if (images.has(image)) return;
+      if (image.closest('[aria-label="Documents"]')) return;
       images.add(image);
       const hero = image.closest<HTMLElement>(".hero-product-carousel");
       image.dataset.imageMotion = hero ? "carousel" : "standard";
@@ -66,7 +67,7 @@ export function ImageMotion() {
       const loaded = () => {
         const wasPending = image.dataset.imageLoading === "pending";
         delete image.dataset.imageLoading;
-        if (wasPending && image.naturalWidth) animate(image, [{ opacity: 0 }, { opacity: 1 }], 550);
+        if (wasPending && image.naturalWidth) animate(image, [{ opacity: 0 }, { opacity: 1 }], 300);
       };
       const pending = () => {
         if (image.complete || image.fetchPriority === "high" || image.getBoundingClientRect().top < innerHeight || preference.matches) {

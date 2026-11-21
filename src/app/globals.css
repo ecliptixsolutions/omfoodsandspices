@@ -200,8 +200,8 @@
 .marquee:hover .marquee-track { animation-play-state: paused; }
 
 /* ---------- Scroll reveal ---------- */
-.reveal-hidden { opacity: 0; transform: translateY(18px); }
-.reveal-shown { opacity: 1; transform: none; transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal-hidden { opacity: 0; transform: translateY(8px); }
+.reveal-shown { opacity: 1; transform: none; transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1), transform 400ms cubic-bezier(0.22, 1, 0.36, 1); }
 
 /* ---------- Accordion ---------- */
 .acc-panel {
@@ -558,18 +558,19 @@ body:has([data-admin-root]) #main { min-height: 100vh; }
 .process-steps.is-active .process-step:nth-child(2) { animation-delay:100ms; }.process-steps.is-active .process-step:nth-child(3) { animation-delay:200ms; }.process-steps.is-active .process-step:nth-child(4) { animation-delay:300ms; }
 /* Public image enhancement only; no layout properties or carousel-track transforms. */
 #main [data-image-reveal="pending"], #main img[data-image-loading="pending"] { opacity:0; }
-#main .image-motion-frame img[data-image-motion="standard"] { transition:transform 550ms cubic-bezier(.22,1,.36,1); }
-#main .image-motion-card { transition:transform 550ms cubic-bezier(.22,1,.36,1),box-shadow 550ms cubic-bezier(.22,1,.36,1); }
+#main .image-motion-frame img[data-image-motion="standard"] { transition:transform 350ms ease-in-out; }
+#main .image-motion-card { transition:transform 350ms ease-in-out,box-shadow 350ms ease-in-out; }
 #main .image-motion-card:hover { transform:none; box-shadow:var(--shadow-card); }
 @media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
   #main .image-motion-frame:hover img[data-image-motion="standard"],
-  #main .image-motion-card:hover .image-motion-frame img[data-image-motion="standard"] { transform:scale(1.06); }
+  #main .image-motion-card:hover .image-motion-frame img[data-image-motion="standard"] { transform:scale(1.05); }
   #main .hero-product-carousel:hover .hero-product-slide[aria-hidden="false"] .hero-product-image { transform:scale(1.04); }
   #main .image-motion-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lift); }
 }
+#main .image-motion-card:active { transform:scale(.99); transition-duration:120ms; }
 @media(prefers-reduced-motion:reduce) {
   #main [data-image-reveal="pending"], #main img[data-image-loading="pending"] { opacity:1; }
-  #main .image-motion-frame img[data-image-motion], #main .image-motion-card:hover { transform:none; }
+  #main .image-motion-frame img[data-image-motion], #main .image-motion-card:hover, #main .image-motion-card:active { transform:none; }
   .hero-copy-entrance,.hero-caption-transition,.product-filter-results,.process-steps.is-active .process-step { animation:none; }
   .process-steps::before { display:none; }
 }
