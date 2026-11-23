@@ -10,13 +10,10 @@ export const site = {
   tagline: "Natural Flavours. Better Tomorrows.",
   footerLine: "Dehydrated onion and garlic ingredients from Gujarat, India, for food manufacturers, seasoning companies and bulk export enquiries.",
   topBarText: "ONION & GARLIC PRODUCTS · BULK SUPPLY & EXPORT INQUIRIES WELCOME",
-  // Canonical URL — set NEXT_PUBLIC_SITE_URL in Vercel to your production domain
-  // (e.g. https://www.yourdomain.com). Falls back to the Vercel production URL, then localhost.
+  // Canonical production URL. Local and preview deployments can override this explicitly.
   url: (
     process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://om-food-exact-preview.vercel.app")
+    "https://omfoodsandspices.com"
   ).replace(/\/$/, ""),
   foundedYear: 2026,
   contact: {

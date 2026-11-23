@@ -1,11 +1,29 @@
 import {publicRows} from "@/lib/public-db.server";
+import {canUseMySql} from "@/lib/admin/db.server";
+import {getPublishedProducts} from "@/lib/products.server";
+import recovery from "@/content/blog-public-recovery.json";
 import type { MetadataRoute } from "next";
 import { infoPages } from "@/content/pages";
 import { site } from "@/content/site";
 
 export const dynamic = "force-dynamic";
 const copyRevision = "2026-11-18"; // Actual source copy revision, never the crawl/request date.
+
+function staticSitemap(): MetadataRoute.Sitemap {
+  const top = ["/", "/blog", "/products", "/dehydrated-onions", "/dehydrated-garlic", "/sourcing", "/certificates", "/enquiry", "/faq", ...infoPages.map((page) => page.path), "/privacy", "/terms"];
+  const posts = recovery.posts as {publishedAt: string | null; updatedAt: string; published: {slug: string; thumbnail?: string} | null}[];
+  return [
+    ...[...new Set(top)].map((path) => ({ url: `${site.url}${path === "/" ? "" : path}`, lastModified: copyRevision })),
+    ...posts.filter((post) => post.published).map((post) => ({ url: `${site.url}/blog/${post.published!.slug}`, lastModified: post.updatedAt || post.publishedAt || copyRevision, images: post.published!.thumbnail ? [new URL(post.published!.thumbnail, site.url).href] : [] })),
+  ];
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!canUseMySql()) {
+    const rows = staticSitemap();
+    const products = await getPublishedProducts();
+    return [...rows, ...products.map((product) => ({ url: `${site.url}/products/${product.slug}`, lastModified: copyRevision, images: product.image ? [new URL(product.image, site.url).href] : [] }))];
+  }
   const [products, blogs, content] = await Promise.all([
     publicRows("SELECT JSON_UNQUOTE(JSON_EXTRACT(p.published_json,'$.slug')) AS slug,JSON_UNQUOTE(JSON_EXTRACT(p.published_json,'$.image')) AS image,p.published_at FROM om_products p JOIN om_categories c ON c.id=p.category_id AND c.status='published' WHERE p.status='published' AND p.published_json IS NOT NULL"),
     publicRows("SELECT JSON_UNQUOTE(JSON_EXTRACT(p.published_json,'$.slug')) AS slug,JSON_UNQUOTE(JSON_EXTRACT(p.published_json,'$.thumbnail')) AS image,COALESCE((SELECT MAX(v.created_at) FROM om_blog_versions v WHERE v.blog_id=p.id AND v.action='published'),p.published_at) AS modified FROM om_blog_posts p WHERE p.status='published' AND p.published_json IS NOT NULL AND p.published_at<=UTC_TIMESTAMP()"),
