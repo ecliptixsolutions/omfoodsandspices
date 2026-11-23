@@ -1,13 +1,13 @@
 import "server-only";
 import recovery from "@/content/blog-public-recovery.json";
-import {getAdminDb,type DbRow} from "./admin/db.server";
+import {canUseMySql,getAdminDb,type DbRow} from "./admin/db.server";
 import {currentAdmin} from "./admin/auth.server";
 import {readingTime,type BlogRecord,type BlogPost,type BlogCategory,type PublicBlogCard} from "./blog";
 import {publicRows,invalidatePublicContent} from "./public-db.server";
 export const decodeBlog=(x:unknown):BlogPost|null=>typeof x==="string"?JSON.parse(x):x as BlogPost|null;
 export function blogRecord(r:DbRow):BlogRecord{return {id:r.id,status:r.status,scheduledAt:r.scheduled_at?new Date(r.scheduled_at).toISOString():null,publishedAt:r.published_at?new Date(r.published_at).toISOString():null,updatedAt:new Date(r.updated_at).toISOString(),draft:decodeBlog(r.draft_json)!,published:decodeBlog(r.published_json)};}
 const publishedWhere="status='published' AND published_json IS NOT NULL AND published_at<=UTC_TIMESTAMP()";
-function recoveryPosts(error:unknown):BlogRecord[]{if((error as {code?:string}).code==="ER_USER_LIMIT_REACHED"&&Date.now()<Date.parse(recovery.expiresAt))return recovery.posts as BlogRecord[];throw error;}
+function recoveryPosts(error:unknown):BlogRecord[]{if(!canUseMySql()||((error as {code?:string}).code==="ER_USER_LIMIT_REACHED"&&Date.now()<Date.parse(recovery.expiresAt)))return recovery.posts as BlogRecord[];throw error;}
 function card(id:string,publishedAt:string,p:BlogPost):PublicBlogCard{return {id,publishedAt,published:{title:p.title,slug:p.slug,excerpt:p.excerpt,thumbnail:p.thumbnail,imageAlt:p.imageAlt,category:p.category,tags:p.tags,featured:p.featured,displayDate:p.displayDate,readingMinutes:readingTime(p.content)}};}
 export async function publicBlogCards(relatedTo?:BlogPost,excludeId=""):Promise<PublicBlogCard[]>{
  const related=relatedTo?.relatedPosts||[];
@@ -24,6 +24,7 @@ export async function publicBlogLinks(productSlug?:string){
  catch(error){const rows=recoveryPosts(error).filter(r=>!productSlug||r.published!.relatedProducts.includes(productSlug));return (productSlug?rows.slice(0,3):rows).map(r=>({id:r.id,slug:r.published!.slug,title:r.published!.title}));}
 }
 export async function publicBlogCategories():Promise<BlogCategory[]>{
+ if(!canUseMySql())return (recovery.categories||[]) as BlogCategory[];
  try{const rows=await publicRows("SELECT id,slug,name,description,is_visible,display_order FROM om_blog_categories WHERE is_visible=TRUE ORDER BY display_order,name");return rows.map(c=>({...c,is_visible:Boolean(c.is_visible)}) as BlogCategory);}
  catch(error){const snapshot=recovery as {expiresAt:string;categories?:BlogCategory[]};if((error as {code?:string}).code==="ER_USER_LIMIT_REACHED"&&Date.now()<Date.parse(snapshot.expiresAt)&&snapshot.categories)return snapshot.categories;throw error;}
 }

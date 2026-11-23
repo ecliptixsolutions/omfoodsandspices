@@ -4,6 +4,17 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-11-23",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    {
+      "pattern": "omfoodsandspices.com/*",
+      "zone_name": "omfoodsandspices.com"
+    },
+    {
+      "pattern": "www.omfoodsandspices.com/*",
+      "zone_name": "omfoodsandspices.com"
+    }
+  ],
+  "workers_dev": true,
   "vars": {
     "OM_RUNTIME": "cloudflare"
   },
