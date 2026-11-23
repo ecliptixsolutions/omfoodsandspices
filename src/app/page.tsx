@@ -11,6 +11,7 @@ import { FaqSection } from "@/components/FaqSection";
 import { HeroSlider } from "@/components/HeroSlider";
 import { heroBackgroundImages } from "@/content/hero-backgrounds";
 import { Ticker } from "@/components/Ticker";
+import { CertificationCarousel } from "@/components/CertificationCarousel";
 import { buildMetadata } from "@/lib/seo";
 import { getPublicHome, getPublicGeneralSettings } from "@/lib/site-content.server";
 import { getPublishedCategories, getPublishedProducts } from "@/lib/products.server";
@@ -26,6 +27,7 @@ export default async function HomePage() {
     <>
       <HeroSlider slides={home.heroSlides} images={heroBackgroundImages} note={home.heroNote} chips={home.heroChips} />
       <Ticker />
+      <CertificationCarousel />
       <ProductRange items={products} categories={categories} />
       <AboutTeaser content={home.aboutTeaser} />
       <WorkingTogether />
