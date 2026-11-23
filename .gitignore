@@ -12,6 +12,8 @@ next-env.d.ts
 
 .vercel
 .env*
+.open-next
+.wrangler
 
 # Local benchmark source snapshots; keep them out of scanners and bundles.
 audit/performance/source-before/
