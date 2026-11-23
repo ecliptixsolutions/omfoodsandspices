@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { unstable_rethrow } from "next/navigation";
 import { site } from "@/content/site";
-import { getAdminDb, type DbRow } from "@/lib/admin/db.server";
+import { canUseMySql, getAdminDb, type DbRow } from "@/lib/admin/db.server";
 import * as homeDefaults from "@/content/home";
 import { isAdminPreview } from "@/lib/admin/auth.server";
 import {publicRows} from "./public-db.server";
@@ -10,7 +10,7 @@ import {publicRows} from "./public-db.server";
 export type ContactSettings = typeof site.contact & { mapsUrl?: string; facebookUrl?: string; instagramUrl?: string; linkedinUrl?: string };
 
 export async function getPublishedContent<T>(key: string, fallback: T): Promise<T> {
-  if (!process.env.MYSQL_URL) return fallback;
+  if (!canUseMySql()) return fallback;
   try {
     const preview=await isAdminPreview();
     const sql=`SELECT ${preview?"draft_json":"published_json"} AS content_json FROM om_site_content WHERE content_key=? LIMIT 1`;

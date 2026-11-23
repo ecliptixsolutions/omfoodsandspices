@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { site } from "@/content/site";
 import { enquiryToText, normalizeEnquiry, validateEnquiry, type EnquiryPayload } from "@/lib/enquiry";
 import { getPublishedProducts } from "@/lib/products.server";
-import { getAdminDb } from "@/lib/admin/db.server";
+import { canUseMySql, getAdminDb } from "@/lib/admin/db.server";
 import { getPublicContact } from "@/lib/site-content.server";
 
 export const runtime = "nodejs";
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
 
   const p = normalizeEnquiry(body as unknown as Record<string, unknown>);
   let savedToCrm = false;
-  if (process.env.MYSQL_URL) {
+  if (canUseMySql()) {
     try {
       await getAdminDb().execute(
         "INSERT INTO om_enquiries (id,type,customer_name,company_name,email,phone,country,product_names,form_size,quantity,unit,packaging,destination,timeline,message) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",

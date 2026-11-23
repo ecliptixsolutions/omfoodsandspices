@@ -5,10 +5,15 @@ declare global {
   var omAdminPool: Pool | undefined;
 }
 
+export function canUseMySql() {
+  return Boolean(process.env.MYSQL_URL) && process.env.OM_RUNTIME !== "cloudflare";
+}
+
 export function getAdminDb() {
-  if (!process.env.MYSQL_URL) throw new Error("MySQL is not configured. Add MYSQL_URL to the server environment.");
+  const uri = process.env.MYSQL_URL;
+  if (!canUseMySql() || !uri) throw new Error("MySQL is not available in this runtime.");
   globalThis.omAdminPool ??= mysql.createPool({
-    ...mysqlUriOptions(process.env.MYSQL_URL),
+    ...mysqlUriOptions(uri),
     charset: "utf8mb4",
     connectionLimit: 2,
     maxIdle: 2,

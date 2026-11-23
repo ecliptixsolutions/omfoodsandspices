@@ -3,12 +3,12 @@ import { cache } from "react";
 import {publicRows} from "./public-db.server";
 import { unstable_rethrow } from "next/navigation";
 import { products as fallbackProducts, type Product } from "@/content/products";
-import { getAdminDb, type DbRow } from "@/lib/admin/db.server";
+import { canUseMySql, getAdminDb, type DbRow } from "@/lib/admin/db.server";
 import { isAdminPreview } from "@/lib/admin/auth.server";
 
 /** Published database catalogue; static project content is used only until MYSQL_URL is configured. */
 export const getPublishedProducts = cache(async function getPublishedProducts(): Promise<Product[]> {
-  if (!process.env.MYSQL_URL) return fallbackProducts;
+  if (!canUseMySql()) return fallbackProducts;
   let rows: DbRow[];
   try {
     const preview = await isAdminPreview();
@@ -33,7 +33,7 @@ export const getPublishedProducts = cache(async function getPublishedProducts():
 
 export type PublicCategory = { slug: string; name: string; description: string; image: string; displayOrder: number };
 export const getPublishedCategories = cache(async function getPublishedCategories(): Promise<PublicCategory[]> {
-  if (!process.env.MYSQL_URL) return [{slug:"onion",name:"Onion",description:"",image:"",displayOrder:0},{slug:"garlic",name:"Garlic",description:"",image:"",displayOrder:1}];
+  if (!canUseMySql()) return [{slug:"onion",name:"Onion",description:"",image:"",displayOrder:0},{slug:"garlic",name:"Garlic",description:"",image:"",displayOrder:1}];
   try {
     const preview=await isAdminPreview();
     const rows = await (preview ? async (sql:string) => (await getAdminDb().query<DbRow[]>(sql))[0] : publicRows)(preview?"SELECT COALESCE(draft_json,published_json) AS content_json FROM om_categories WHERE status<>'archived' ORDER BY display_order,created_at":"SELECT published_json AS content_json FROM om_categories WHERE status='published' AND published_json IS NOT NULL ORDER BY display_order,created_at");
